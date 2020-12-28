@@ -13,6 +13,15 @@ fi
 rsa_key_size=4096
 path="/etc/nginx/certs.d"
 
+echo "### Checking for 'web' docker network"
+WEBNET=$(docker network inspect web -f '{{.Name}} - {{.Driver}}' 2>&1)
+if [[ "$WEBNET" == *"No such network"* ]]; then
+  docker network create web
+else
+  echo $WEBNET "OK"
+fi
+echo
+
 echo "### Creating root ssl certificate"
 docker-compose run --rm --entrypoint "\
   openssl req -x509 -nodes -newkey rsa:4096 -days 365 \
