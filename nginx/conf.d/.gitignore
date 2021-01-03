@@ -3,3 +3,4 @@
 !default.conf
 !ssl-dhparams.pem
 !ssl.conf
+!gzip.conf
