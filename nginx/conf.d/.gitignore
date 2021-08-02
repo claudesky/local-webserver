@@ -4,3 +4,4 @@
 !ssl-dhparams.pem
 !ssl.conf
 !gzip.conf
+!sites.conf

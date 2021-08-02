@@ -28,7 +28,12 @@ function checkRequirements {
     fi
 
     if ! [ -x "$(command -v docker-compose)" ]; then
-    echo 'Error: docker-compose is not installed.' >&2
+    echo "Error: docker-compose is not installed." >&2
+    exit 1
+    fi
+
+    if ! docker-compose exec nginx nginx -t; then
+    echo "Error: There is a problem with existing configuration." >&2
     exit 1
     fi
 }
@@ -78,9 +83,9 @@ if [[ -z "$subdomain" ]] || [[ -z "$container_name" ]]; then
     exit
 fi
 
-if [[ -f "./nginx/conf.d/$subdomain.conf" ]]; then
+if [[ -f "./nginx/sites-available/$subdomain.conf" ]]; then
     while true; do
-        echo "A configuration file already exists in ./nginx/conf.d/$subdomain.conf"
+        echo "A configuration file already exists in ./nginx/sites-available/$subdomain.conf"
         read -p "Do you want to overwrite it? " yn
         case $yn in
             [Yy]* ) break;;
@@ -100,8 +105,8 @@ fi
 echo "$CONTAINERCHECK - OK"
 echo
 
-echo "### Creating website configuration at ./nginx/conf.d/$subdomain.conf"
-cat > ./nginx/conf.d/$subdomain.conf << EOF
+echo "### Creating website configuration at ./nginx/sites-available/$subdomain.conf"
+cat > ./nginx/sites-available/$subdomain.conf << EOF
 upstream $subdomain {
     server $container_name:$portnumber;
 }
@@ -125,6 +130,18 @@ server {
 EOF
 echo
 
-echo "### Reloading nginx server config"
-docker-compose exec nginx nginx -s reload
+echo "### Enabling website"
+cd ./nginx/sites-enabled
+ln -s ../sites-available/$subdomain.conf
+echo
+
+if ! docker-compose exec nginx nginx -t; then
+    echo
+    echo "Warning: There is a problem with existing configuration."
+    echo "### Skipping nginx reload"
+else
+    echo
+    echo "### Reloading nginx server config"
+    docker-compose exec nginx nginx -s reload
+fi
 echo

@@ -8,9 +8,11 @@ services:
             - 80:80
             - 443:443
         volumes:
+            - ./nginx/certs.d:/etc/nginx/certs.d
             - ./nginx/html:/usr/share/nginx/html
             - ./nginx/conf.d:/etc/nginx/conf.d
-            - ./nginx/certs.d:/etc/nginx/certs.d
+            - ./nginx/sites-available:/etc/nginx/sites-available
+            - ./nginx/sites-enabled:/etc/nginx/sites-enabled
 
 networks:
     default:
