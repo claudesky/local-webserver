@@ -5,3 +5,4 @@
 !ssl.conf
 !gzip.conf
 !sites.conf
+!resolver.conf
