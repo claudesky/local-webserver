@@ -115,10 +115,6 @@ echo
 
 echo "### Creating website configuration at ./nginx/sites-available/$subdomain.conf"
 cat > ./nginx/sites-available/$subdomain.conf << EOF
-upstream $subdomain {
-    server $container_name:$portnumber;
-}
-
 server {
     listen 443 ssl;
     server_name $subdomain.dev.localhost;
@@ -127,7 +123,8 @@ server {
     ssl_certificate_key /etc/nginx/certs.d/server.key;
 
     location / {
-        proxy_pass http://$subdomain;
+        set \$target "$container_name:$portnumber";
+        proxy_pass http://\$target;
         proxy_set_header X-Forwarded-Proto https;
         proxy_set_header X-Forwarded-For \$remote_addr;
         proxy_set_header X-Real-IP \$remote_addr;
