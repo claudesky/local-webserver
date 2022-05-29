@@ -22,20 +22,28 @@ if [[ "$#" == "0" ]]; then
 fi
 
 function checkRequirements {
-    if [[ "$EUID" -ne 0 ]]; then
-    echo "Error: Please run as root." >&2
+    echo "Checking docker access..."
+    docker_ps=$(docker ps 2>&1)
+    if [ "$?" -eq "1" ]; then
+    echo "Error: accessing docker with message:" >&2
+    echo "$docker_ps" >&2
     exit 1
     fi
+    printf "docker access OK\n\n"
 
+    echo "Checking docker compose..."
     if ! [ -x "$(command -v docker-compose)" ]; then
     echo "Error: docker-compose is not installed." >&2
     exit 1
     fi
+    printf "docker-compose OK\n\n"
 
+    echo "Checking existing container and config..."
     if ! docker-compose exec nginx nginx -t; then
     echo "Error: There is a problem with existing configuration." >&2
     exit 1
     fi
+    printf "Existing container config OK\n\n"
 }
 
 checkRequirements
