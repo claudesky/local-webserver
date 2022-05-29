@@ -5,7 +5,6 @@ services:
         image: nginx
         restart: always
         ports:
-            - 80:80
             - 443:443
         volumes:
             - ./nginx/certs.d:/etc/nginx/certs.d
